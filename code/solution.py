@@ -1,5 +1,6 @@
 """Exercise 3 Solution - Data Management and Plotting."""
 
+
 # Task 3: Load the chs_data.
 # Import Packages.
 import numpy as np
@@ -13,6 +14,7 @@ childids = chs.childid.unique().tolist()
 
 #Discard all observations which are not in the specific years.
 chs = chs[chs.year.isin(list(range(1986, 2011, 2)))]
+
 
 # Task 4: Clean and transform the bpi dataset.
 # Load the bpi dataset.
@@ -36,18 +38,29 @@ info = pd.read_csv('../original_data/bpi_variable_info.csv')
 # Discard all variables that are not present in bpi_variable_info.csv.
 bpi = bpi[info.nlsy_name.tolist()]
 
-# Rename the variable with readable names.
-info = info.set_index('nlsy_name')
-info_dict = info['readable_name'].T.to_dict()
-bpi = bpi.rename(columns=info_dict)
+# Build a dictionary to map readable names to nlsy names.
+info_dict = info.set_index('nlsy_name')['readable_name'].T.to_dict()
 
+# Create the dictionary for bpi dataset where the keys are the survey years.
 bpi_dict = {}
-bpi_dict.fromkeys(info.survey_year.tolist())
+bpi_dict.fromkeys(info.survey_year[3:].tolist())
 
-temp1 = bpi[info[info.survey_year == info.survey_year.unique()[0]]['readable_name']]
-for i in range(1,len(info.survey_year.unique())): 
-    temp2 = bpi[info[info.survey_year == info.survey_year.unique()[i]]['readable_name']]
+# Put data of the corresponding survey year into the value of the key.
+temp1 = bpi[info[info.survey_year == info.survey_year.unique()[0]]['nlsy_name']]
+for i in range(1,len(info.survey_year.unique())):     
+    temp1['year'] = info.survey_year.unique()[i]
+    temp2 = bpi[info[info.survey_year == info.survey_year.unique()[i]]['nlsy_name']]
     temp = pd.concat([temp1,temp2],axis = 1) 
-    temp['year'] = info.survey_year.unique()[i]
+    temp = temp.rename(columns=info_dict)
     bpi_dict[info.survey_year.unique()[i]] = temp
     
+
+#Task 5: Generate a new bpi dataset in long format.
+bpi_long = bpi_dict['1986']
+for i in bpi_dict.keys():
+    bpi_long = bpi_long.merge(bpi_dict[i], how = 'outer')
+    
+# Save the long format dataset as a comma separated file.
+bpi_long.to_csv('../bld/bpi_long,csv')
+
+
