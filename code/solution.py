@@ -24,10 +24,10 @@ bpi = pd.read_stata('../original_data/BEHAVIOR_PROBLEMS_INDEX.dta')
 bpi = bpi[bpi.C0000100.isin(childids)]
 
 # Replace all negative numbers to NaN.
-bpi.replace(-7, np.nan, inplace = True)
-bpi.replace(-3, np.nan, inplace = True)
-bpi.replace(-2, np.nan, inplace = True)
-bpi.replace(-1, np.nan, inplace = True)
+bpi.replace(-7, np.nan, inplace=True)
+bpi.replace(-3, np.nan, inplace=True)
+bpi.replace(-2, np.nan, inplace=True)
+bpi.replace(-1, np.nan, inplace=True)
 
 print(bpi[bpi<0].count().min())
 
@@ -50,7 +50,7 @@ temp1 = bpi[info[info.survey_year == info.survey_year.unique()[0]]['nlsy_name']]
 for i in range(1,len(info.survey_year.unique())):     
     temp1['year'] = info.survey_year.unique()[i]
     temp2 = bpi[info[info.survey_year == info.survey_year.unique()[i]]['nlsy_name']]
-    temp = pd.concat([temp1,temp2],axis = 1) 
+    temp = pd.concat([temp1,temp2], axis=1) 
     temp = temp.rename(columns=info_dict)
     bpi_dict[info.survey_year.unique()[i]] = temp
     
@@ -58,9 +58,12 @@ for i in range(1,len(info.survey_year.unique())):
 #Task 5: Generate a new bpi dataset in long format.
 bpi_long = bpi_dict['1986']
 for i in bpi_dict.keys():
-    bpi_long = bpi_long.merge(bpi_dict[i], how = 'outer')
+    bpi_long = bpi_long.merge(bpi_dict[i], how='outer')
     
 # Save the long format dataset as a comma separated file.
-bpi_long.to_csv('../bld/bpi_long,csv')
+bpi_long.to_csv('../bld/bpi_long.csv')
 
 
+# Task 6: Merge the long dataset with the chs dataset.
+bpi_merged = pd.merge(chs, bpi_long, how='left', on=['childid', 'year'], suffixes=('_chs', '_long'))
+bpi_merged.to_csv('../bld/bpi_merged.csv')
