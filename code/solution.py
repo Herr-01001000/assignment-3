@@ -5,6 +5,8 @@
 # Import Packages.
 import numpy as np
 import pandas as pd
+#import warnings
+#warnings.filterwarnings("ignore")
 
 # Import Data.
 chs = pd.read_stata('../original_data/chs_data.dta')
@@ -109,10 +111,20 @@ bpi_final = pd.concat([bpi_final, antisocial, anxiety, headstrong, hyperactive, 
 bpi_final.to_csv('../bld/bpi_final.csv')
 
 
+# Task 8: Make regression plots for each subscale.
+# Replace missing data in chs by NaN.
+bpi_final.replace(-100, np.nan, inplace=True)
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set(color_codes=True)
+
+sns.regplot('antisocial', 'bpiA', bpi_final, x_estimator=np.mean, ci=70)
+plt.savefig('../bld/regplot_antisocial.png')
 
 
 
 
 
-import warnings
-warnings.filterwarnings("ignore")
+
+
