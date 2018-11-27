@@ -26,7 +26,7 @@ bpi = pd.read_stata('d:/Eriko-/prog-econ-sandbox/assignment-3-group_7/bld/BEHAVI
 bpi = bpi[bpi.C0000100.isin(childids)]
 
 # Replace all negative numbers by pd.np.nan
-bpi = bpi.replace(bpi[bpi<0], pd.np.nan)
+bpi.replace(bpi[bpi<0], pd.np.nan)
 
 
 
