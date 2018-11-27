@@ -38,3 +38,7 @@ bpi_long = bpi_dict['1986']
 for i in bpi_dict.keys():
     bpi_long = bpi_long.merge(bpi_dict[i], how='outer')
 bpi_long.to_csv('../bld/bpi_long.csv')
+
+# Task 6: Merge the long dataset with the chs dataset.
+bpi_merged = chs_data_1.merge(bpi_long, how = 'left', on = ['childid', 'year'], suffixes=('_chs_data_1', '_long'))
+bpi_merged.to_csv('../bld/bpi_merged.csv')
