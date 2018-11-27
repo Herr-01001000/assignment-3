@@ -106,8 +106,12 @@ headstrong = bpi_final[sn.selectnamesC(list(bpi_final))].mean(1).to_frame('heads
 hyperactive = bpi_final[sn.selectnamesD(list(bpi_final))].mean(1).to_frame('hyperactive')
 peer = bpi_final[sn.selectnamesE(list(bpi_final))].mean(1).to_frame('peer')
 
+# Standardlize the scores to mean 0 and variance 1 for each age group.
+subscales = pd.concat([antisocial, anxiety, headstrong, hyperactive, peer], axis=1)
+subscales_norm = subscales.sub(subscales.mean(1), axis = 0).div(subscales.std(1), axis = 0)
+
 # Merge the scores into bpi_final and save it as a csv file.
-bpi_final = pd.concat([bpi_final, antisocial, anxiety, headstrong, hyperactive, peer], axis=1)
+bpi_final = pd.concat([bpi_final, subscales_norm], axis=1)
 bpi_final.to_csv('../bld/bpi_final.csv')
 
 
@@ -119,10 +123,46 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set(color_codes=True)
 
+# Plot and save regression plots for antisocial and bpiA.
 sns.regplot('antisocial', 'bpiA', bpi_final, x_estimator=np.mean, ci=70)
+plt.show()
 plt.savefig('../bld/regplot_antisocial.png')
 
+# Plot and save regression plots for anxiety and bpiB.
+sns.regplot('anxiety', 'bpiB', bpi_final, x_estimator=np.mean, ci=70)
+plt.show()
+plt.savefig('../bld/regplot_anxiety.png')
 
+# Plot and save regression plots for headstrong and bpiC.
+sns.regplot('headstrong', 'bpiC', bpi_final, x_estimator=np.mean, ci=70)
+plt.show()
+plt.savefig('../bld/regplot_headstrong.png')
+
+# Plot and save regression plots for hyperactive and bpiD.
+sns.regplot('hyperactive', 'bpiD', bpi_final, x_estimator=np.mean, ci=70)
+plt.show()
+plt.savefig('../bld/regplot_hyperactive.png')
+
+# Plot and save regression plots for peer and bpiE.
+sns.regplot('peer', 'bpiE', bpi_final, x_estimator=np.mean, ci=70)
+plt.show()
+plt.savefig('../bld/regplot_peer.png')
+
+
+# Task 9: Make a heatmap of the correlation matrix of the items.
+
+#antisocial_item = bpi_final[sn.selectnamesA(list(bpi_final))]
+#anxiety_item = bpi_final[sn.selectnamesB(list(bpi_final))]
+#headstrong_item = bpi_final[sn.selectnamesC(list(bpi_final))]
+#hyperactive_item = bpi_final[sn.selectnamesD(list(bpi_final))]
+#peer_item = bpi_final[sn.selectnamesE(list(bpi_final))]
+
+
+sns.heatmap(bpi_final[sn.selectnamesA(list(bpi_final))
+                      + sn.selectnamesB(list(bpi_final))
+                      + sn.selectnamesC(list(bpi_final))].corr())
+plt.show()
+plt.savefig('../bld/heatmap.png')
 
 
 
