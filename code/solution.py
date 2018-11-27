@@ -9,7 +9,6 @@ list_1 = chs_data.childid.drop_duplicates(keep='first', inplace=False)
 chs_data_1 = chs_data[chs_data['year'].isin(list(range(1986, 2011, 2)))]
 
 # Task 4: Clean and transform the bpi dataset.
-
 # Load the bpi dataset.
 bpi = pd.read_stata('../original_data/BEHAVIOR_PROBLEMS_INDEX.dta')
 
@@ -33,3 +32,9 @@ for i in range(1,len(bpi_2.survey_year.unique())):
     temp = pd.concat([temp1,temp2], axis=1) 
     temp = temp.rename(columns=info_dict)
     bpi_dict[bpi_2.survey_year.unique()[i]] = temp
+
+# Task 5: Generate a new bpi dataset in long format.
+bpi_long = bpi_dict['1986']
+for i in bpi_dict.keys():
+    bpi_long = bpi_long.merge(bpi_dict[i], how='outer')
+bpi_long.to_csv('../bld/bpi_long.csv')
