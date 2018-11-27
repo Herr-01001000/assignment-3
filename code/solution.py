@@ -25,9 +25,12 @@ bpi = pd.read_stata('d:/Eriko-/prog-econ-sandbox/assignment-3-group_7/bld/BEHAVI
 # Drop obserbations with the childids list.
 bpi = bpi[bpi.C0000100.isin(childids)]
 
-# Replace all negative numbers by pd.np.nan
+# Replace all negative numbers by pd.np.nan.
 bpi.replace(bpi[bpi<0], pd.np.nan)
 
+# Create a dictionary where the keys are the survey years (years 1986 - 2010).
+# Import the bpi variable information file.
+info = pd.read_csv('d:/Eriko-/prog-econ-sandbox/assignment-3-group_7/bld/bpi_variable_info.csv')
 
 
 
