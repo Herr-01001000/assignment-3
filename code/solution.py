@@ -29,7 +29,7 @@ bpi.replace(-3, np.nan, inplace=True)
 bpi.replace(-2, np.nan, inplace=True)
 bpi.replace(-1, np.nan, inplace=True)
 
-print(bpi[bpi<0].count().min())
+#print(bpi[bpi<0].count().min())  # Check if there is any negative number left.
 
 # Create a dictionary for bpi dataset.
 # Import bpi variables information.
@@ -65,5 +65,54 @@ bpi_long.to_csv('../bld/bpi_long.csv')
 
 
 # Task 6: Merge the long dataset with the chs dataset.
+# Change the data type of year in bpi_long to match the data type in chs.
+bpi_long['year']=bpi_long['year'].astype(np.int16)
+
 bpi_merged = pd.merge(chs, bpi_long, how='left', on=['childid', 'year'], suffixes=('_chs', '_long'))
 bpi_merged.to_csv('../bld/bpi_merged.csv')
+
+
+# Task 7: Calculate scores for each subscale of the bpi.
+# Change the data type of birth_order in order to use replace function later.
+bpi_final = bpi_merged
+bpi_final['birth_order']=bpi_final['birth_order'].astype(object)
+
+# Replace the answers with numbers.
+bpi_final.replace(r'SOMETIMES TRUE', 1, inplace=True)
+bpi_final.replace(r'Sometimes True', 1, inplace=True)
+bpi_final.replace(r'Sometimes true', 1, inplace=True)
+bpi_final.replace(r'OFTEN TRUE', 1, inplace=True)
+bpi_final.replace(r'Often True', 1, inplace=True)
+bpi_final.replace(r'Often true', 1, inplace=True)
+bpi_final.replace(r'NOT TRUE', 0, inplace=True)
+bpi_final.replace(r'Not True', 0, inplace=True)
+bpi_final.replace(r'Not true', 0, inplace=True)
+bpi_final.replace(r'NEVER ATTENDED SCHOOL', np.nan, inplace=True)
+bpi_final.replace(r'Never Attended School', np.nan, inplace=True)
+bpi_final.replace(r'Child has never attended school', np.nan, inplace=True)
+
+# Separate the data into groups by different ages.
+bpi_final = pd.DataFrame(bpi_final, dtype = np.float)
+bpi_final = bpi_final.groupby('age').mean()
+
+# Calculate the each subscale score for each group.
+import selectnames as sn
+
+antisocial = bpi_final[sn.selectnamesA(list(bpi_final))].mean(1).to_frame('antisocial')
+anxiety = bpi_final[sn.selectnamesB(list(bpi_final))].mean(1).to_frame('anxiety')
+headstrong = bpi_final[sn.selectnamesC(list(bpi_final))].mean(1).to_frame('headstrong')
+hyperactive = bpi_final[sn.selectnamesD(list(bpi_final))].mean(1).to_frame('hyperactive')
+peer = bpi_final[sn.selectnamesE(list(bpi_final))].mean(1).to_frame('peer')
+
+# Merge the scores into bpi_final and save it as a csv file.
+bpi_final = pd.concat([bpi_final, antisocial, anxiety, headstrong, hyperactive, peer], axis=1)
+bpi_final.to_csv('../bld/bpi_final.csv')
+
+
+
+
+
+
+
+import warnings
+warnings.filterwarnings("ignore")
