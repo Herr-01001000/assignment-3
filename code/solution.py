@@ -42,7 +42,7 @@ info = pd.read_csv('d:/Eriko-/prog-econ-sandbox/assignment-3-group_7/bld/bpi_var
 bpi = bpi[info.nlsy_name.tolist()].T
 
 # Add a column called year, which indicates the surevey year.
-bpi['year'] = info.set_index('nlsy_name')['survey_year']
+'''bpi['year'] = info.set_index('nlsy_name')['survey_year']'''
 
 # Add the readable names as a column, then set them as the new index.
 bpi['readable_name'] =  info.set_index('nlsy_name')['readable_name']
@@ -52,23 +52,26 @@ bpi = bpi.set_index('readable_name', drop=True)
 bpi_dict = {}
 bpi_dict.fromkeys(info.survey_year[3:].tolist())
 
-info_dict = info.set_index('nlsy_name')['readable_name'].T.to_dict()
+#info_dict = info.set_index('nlsy_name')['readable_name'].T.to_dict()
 
 temp1 = bpi.T[info[info.survey_year == info.survey_year.unique()[0]]['readable_name']]
-for i in range(1, len(bpi.year.unique())):
+for i in range(1, len(info.survey_year.unique())):
     temp1['year'] = info.survey_year.unique()[i]
     temp2 = bpi.T[info[info.survey_year == info.survey_year.unique()[i]]['readable_name']]
     temp = pd.concat([temp1,temp2], axis=1) 
-    temp = temp.rename(columns=info_dict)
+#    temp = temp.rename(columns=info_dict)
     bpi_dict[info.survey_year.unique()[i]] = temp
     
     
-    
-    
+'''
+Task 5
+Use the results from the previous steps to generate a new bpi dataset 
+in long format. Save this as a comma separated file in bld/bpi_long.csv.'''        
 # Task 5: Generate a new bpi dataset in long format.
-bpi_long = bpi.T
-
-
+# Create a new bpi dataset in long format.
+bpi_long = bpi_dict['1986']
+for i in bpi_dict.keys():
+    bpi_long = bpi_long.merge(bpi_dict[i], how='outer')
 
 
 
