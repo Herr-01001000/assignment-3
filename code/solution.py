@@ -1,44 +1,57 @@
-import pandas as pd
+# Task 3: Load the chs_data.
+# Import Packages.
 import numpy as np
+import pandas as pd
+#import warnings
+#warnings.filterwarnings("ignore")
 
-# Task 3: Load the chs_data. Extract a list of childids that contains all values that variable takes in the chs_data, but no duplicates. Also, discard all observations in which year is not in list(range(1986, 2011, 2))
-chs_data = pd.read_stata('../original_data/chs_data.dta')
+# Import Data.
+chs = pd.read_stata('../original_data/chs_data.dta')
 
-list_1 = chs_data.childid.drop_duplicates(keep='first', inplace=False)
+# Extract a list of childids that contains all values that takes in the chs_data.
+childids = chs.childid.unique().tolist()
 
-chs_data_1 = chs_data[chs_data['year'].isin(list(range(1986, 2011, 2)))]
+#Discard all observations which are not in the specific years.
+chs = chs[chs.year.isin(list(range(1986, 2011, 2)))]
+
 
 # Task 4: Clean and transform the bpi dataset.
 # Load the bpi dataset.
 bpi = pd.read_stata('../original_data/BEHAVIOR_PROBLEMS_INDEX.dta')
 
 # Use the list of childids to only keep observations that are present in the chs_data.
-bpi_1 = bpi[bpi.C0000100.isin(list_1)]
+bpi = bpi[bpi.C0000100.isin(childids)]
 
 # Replace all negative numbers by pd.np.nan.
-bpi_1.replace(bpi_1[bpi_1<0], np.nan, inplace = True)
+bpi.replace(-7, np.nan, inplace=True)
+bpi.replace(-3, np.nan, inplace=True)
+bpi.replace(-2, np.nan, inplace=True)
+bpi.replace(-1, np.nan, inplace=True)
 
 # Create a dictionary where the keys are the survey years and the values are DataFrames with the bpi data of that year.
-bpi_2 = pd.read_csv('../original_data/bpi_variable_info.csv')
-bpi = bpi[bpi_2.nlsy_name.tolist()]
-info_dict = bpi_2.set_index('nlsy_name')['readable_name'].T.to_dict()
+bpi_info = pd.read_csv('../original_data/bpi_variable_info.csv')
+bpi = bpi[bpi_info.nlsy_name.tolist()]
+info_dict = bpi_info.set_index('nlsy_name')['readable_name'].T.to_dict()
 
 bpi_dict = {}
-bpi_dict.fromkeys(bpi_2.survey_year[3:].tolist())
-temp1 = bpi[bpi_2[bpi_2.survey_year == bpi_2.survey_year.unique()[0]]['nlsy_name']]
-for i in range(1,len(bpi_2.survey_year.unique())):     
-    temp1['year'] = bpi_2.survey_year.unique()[i]
-    temp2 = bpi[bpi_2[bpi_2.survey_year == bpi_2.survey_year.unique()[i]]['nlsy_name']]
+bpi_dict.fromkeys(bpi_info.survey_year[3:].tolist())
+temp1 = bpi[bpi_info[bpi_info.survey_year == bpi_info.survey_year.unique()[0]]['nlsy_name']]
+for i in range(1,len(bpi_info.survey_year.unique())):     
+    temp1['year'] = bpi_info.survey_year.unique()[i]
+    temp2 = bpi[bpi_info[bpi_info.survey_year == bpi_info.survey_year.unique()[i]]['nlsy_name']]
     temp = pd.concat([temp1,temp2], axis=1) 
     temp = temp.rename(columns=info_dict)
-    bpi_dict[bpi_2.survey_year.unique()[i]] = temp
+    bpi_dict[bpi_info.survey_year.unique()[i]] = temp
 
 # Task 5: Generate a new bpi dataset in long format.
 bpi_long = bpi_dict['1986']
 for i in bpi_dict.keys():
     bpi_long = bpi_long.merge(bpi_dict[i], how='outer')
+    
+# Save the long format dataset as a comma separated file.
 bpi_long.to_csv('../bld/bpi_long.csv')
 
 # Task 6: Merge the long dataset with the chs dataset.
-bpi_merged = chs_data_1.merge(bpi_long, how = 'left', on = ['childid', 'year'], suffixes=('_chs_data_1', '_long'))
+bpi_long['year']=bpi_long['year'].astype(np.int16)
+bpi_merged = pd.merge(chs, bpi_long, how='left', on=['childid', 'year'], suffixes=('_chs', '_long'))
 bpi_merged.to_csv('../bld/bpi_merged.csv')
