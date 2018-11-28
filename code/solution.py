@@ -95,7 +95,7 @@ bpi_final.replace(r'Child has never attended school', np.nan, inplace=True)
 
 # Separate the data into groups by different ages.
 bpi_final = pd.DataFrame(bpi_final, dtype = np.float)
-bpi_final = bpi_final.groupby('age').mean()
+#bpi_final = bpi_final.groupby('age').mean()
 
 # Calculate the each subscale score for each group.
 import selectnames as sn
@@ -107,8 +107,8 @@ hyperactive = bpi_final[sn.selectnamesD(list(bpi_final))].mean(1).to_frame('hype
 peer = bpi_final[sn.selectnamesE(list(bpi_final))].mean(1).to_frame('peer')
 
 # Standardlize the scores to mean 0 and variance 1 for each age group.
-subscales = pd.concat([antisocial, anxiety, headstrong, hyperactive, peer], axis=1)
-subscales_norm = subscales.sub(subscales.mean(1), axis = 0).div(subscales.std(1), axis = 0)
+subscales = pd.concat([bpi_final['age'], antisocial, anxiety, headstrong, hyperactive, peer], axis=1)
+subscales_norm = subscales.groupby('age').apply(lambda x: (x-np.mean(x))/(np.std(x)))
 
 # Merge the scores into bpi_final and save it as a csv file.
 bpi_final = pd.concat([bpi_final, subscales_norm], axis=1)
@@ -124,47 +124,38 @@ import seaborn as sns
 sns.set(color_codes=True)
 
 # Plot and save regression plots for antisocial and bpiA.
-sns.regplot('antisocial', 'bpiA', bpi_final, x_estimator=np.mean, ci=70)
-plt.show()
+sns.regplot('antisocial', 'bpiA', bpi_final)
 plt.savefig('../bld/regplot_antisocial.png')
+plt.show()
 
 # Plot and save regression plots for anxiety and bpiB.
 sns.regplot('anxiety', 'bpiB', bpi_final, x_estimator=np.mean, ci=70)
-plt.show()
 plt.savefig('../bld/regplot_anxiety.png')
+plt.show()
 
 # Plot and save regression plots for headstrong and bpiC.
 sns.regplot('headstrong', 'bpiC', bpi_final, x_estimator=np.mean, ci=70)
-plt.show()
 plt.savefig('../bld/regplot_headstrong.png')
+plt.show()
 
 # Plot and save regression plots for hyperactive and bpiD.
 sns.regplot('hyperactive', 'bpiD', bpi_final, x_estimator=np.mean, ci=70)
-plt.show()
 plt.savefig('../bld/regplot_hyperactive.png')
+plt.show()
 
 # Plot and save regression plots for peer and bpiE.
 sns.regplot('peer', 'bpiE', bpi_final, x_estimator=np.mean, ci=70)
-plt.show()
 plt.savefig('../bld/regplot_peer.png')
+plt.show()
 
 
 # Task 9: Make a heatmap of the correlation matrix of the items.
 
-#antisocial_item = bpi_final[sn.selectnamesA(list(bpi_final))]
-#anxiety_item = bpi_final[sn.selectnamesB(list(bpi_final))]
-#headstrong_item = bpi_final[sn.selectnamesC(list(bpi_final))]
-#hyperactive_item = bpi_final[sn.selectnamesD(list(bpi_final))]
-#peer_item = bpi_final[sn.selectnamesE(list(bpi_final))]
-
-
 sns.heatmap(bpi_final[sn.selectnamesA(list(bpi_final))
                       + sn.selectnamesB(list(bpi_final))
-                      + sn.selectnamesC(list(bpi_final))].corr())
-plt.show()
+                      + sn.selectnamesC(list(bpi_final))].corr(),
+            cmap='Reds',
+            vmax=0.5, 
+            square=True)
 plt.savefig('../bld/heatmap.png')
-
-
-
-
-
+plt.show()
