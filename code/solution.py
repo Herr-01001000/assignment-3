@@ -14,19 +14,6 @@ chs = pd.read_stata('../original_data/chs_data.dta')
 # Extract a list of childids that contains all values that takes in the chs_data.
 childids = chs.childid.unique().tolist()
 
-<<<<<<< HEAD
-# Discard all observations which are not in the specific years.
-chs = chs[chs.year.isin(list(range(1986, 2011, 2)))]
-
-
-
-
-    
-    
-
-
-
-=======
 #Discard all observations which are not in the specific years.
 chs = chs[chs.year.isin(list(range(1986, 2011, 2)))]
 
@@ -68,6 +55,5 @@ for i in range(1,len(info.survey_year.unique())):
     temp = pd.concat([temp1,temp2], axis=1) 
     temp = temp.rename(columns=info_dict)
     bpi_dict[info.survey_year.unique()[i]] = temp
-    
->>>>>>> Herr-01001000
+
 
