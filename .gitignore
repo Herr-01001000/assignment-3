@@ -66,4 +66,8 @@ ___*
 .env/workaround.bat
 .env/installed_conda_pkgs
 .env/installed_pip_pkgs
+<<<<<<< HEAD
 .env/installed_spec.json
+=======
+.env/installed_spec.json
+>>>>>>> 720bcb97010f4c545aae43e86b500e6092121184
